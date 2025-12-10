@@ -4,7 +4,7 @@ import styles from '../styles/Layout.module.css';
 import utilStyles from '../styles/Utils.module.css';
 import Link from 'next/link';
  
-const name = 'Your Name';
+const name = 'Walt & Co';
 export const siteTitle = 'Next.js Sample Website';
  
 export default function Layout({ children, home }) {
@@ -31,9 +31,9 @@ export default function Layout({ children, home }) {
             <Image
               priority
               src="/images/profile.jpg"
-              className={utilStyles.borderCircle}
-              height={144}
-              width={144}
+              className={`${utilStyles.borderCircle} ${utilStyles.objectFitCover}`}
+              height={108}
+              width={108}
               alt=""
             />
             <h1 className={utilStyles.heading2Xl}>{name}</h1>
@@ -44,9 +44,9 @@ export default function Layout({ children, home }) {
               <Image
                 priority
                 src="/images/profile.jpg"
-                className={utilStyles.borderCircle}
-                height={108}
-                width={108}
+                className={`${utilStyles.borderCircle} ${utilStyles.objectFitCover}`}
+                height={128}
+                width={128}
                 alt=""
               />
             </Link>
