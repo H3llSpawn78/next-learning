@@ -54,3 +54,7 @@
 .objectFitCover{
  object-fit: cover;
 }
+
+.textCenter{
+  text-align: center;
+}
