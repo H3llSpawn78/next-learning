@@ -1,7 +1,9 @@
 import { useState } from "react";
 import HouseRow from "./HouseRow.js";
+//import { FormInput } from "./FormInput/FormInput.js";
+import styles from "./scss/Form.module.scss";
 
-const houses = [
+const housesArray = [
   {
     id: 1,
     address: "12 test street",
@@ -29,7 +31,8 @@ const houses = [
 ];
 
 const HouseList = () => {
-  const [houseList, setHouseList] = useState(houses);
+  // [prevState, newState]
+  const [houseList, setHouseList] = useState(housesArray);
   const handlePriceChange = (id: number, value: number) => {
     setHouseList((prevHouseList: any[]) =>
       prevHouseList.map((house) => {
@@ -51,6 +54,19 @@ const HouseList = () => {
       }),
     );
   };
+
+  const addHouse = () => {
+    setHouseList((prevHouseList: any[]) => [
+      ...prevHouseList,
+      {
+        id: prevHouseList.length + 1,
+        address: "A new street",
+        region: "Scotland",
+        askingPrice: 300000,
+      },
+    ]);
+  };
+
   return (
     <>
       <h1>House List</h1>
@@ -72,8 +88,16 @@ const HouseList = () => {
               handleRegionChange={handleRegionChange}
             />
           ))}
+          {/* <tr>
+            <td>
+              <FormInput type="submit" value="Submit" />
+            </td>
+          </tr> */}
         </tbody>
       </table>
+      <button className={styles.addButton} onClick={addHouse}>
+        Add House
+      </button>
     </>
   );
 };
