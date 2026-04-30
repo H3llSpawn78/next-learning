@@ -1,38 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import HouseRow from "./HouseRow.js";
 //import { FormInput } from "./FormInput/FormInput.js";
 import styles from "./scss/Form.module.scss";
 
-const housesArray = [
-  {
-    id: 1,
-    address: "12 test street",
-    region: "England",
-    askingPrice: 200000,
-  },
-  {
-    id: 2,
-    address: "24 test avenue",
-    region: "Ireland",
-    askingPrice: 400000,
-  },
-  {
-    id: 3,
-    address: "12 test street",
-    region: "Wales",
-    askingPrice: 200000,
-  },
-  {
-    id: 4,
-    address: "24 test avenue",
-    region: "Scotland",
-    askingPrice: 400000,
-  },
-];
+// const housesArray = [
+//   {
+//     id: 1,
+//     address: "12 test street",
+//     region: "England",
+//     askingPrice: 200000,
+//   },
+//   {
+//     id: 2,
+//     address: "24 test avenue",
+//     region: "Ireland",
+//     askingPrice: 400000,
+//   },
+//   {
+//     id: 3,
+//     address: "12 test street",
+//     region: "Wales",
+//     askingPrice: 200000,
+//   },
+//   {
+//     id: 4,
+//     address: "24 test avenue",
+//     region: "Scotland",
+//     askingPrice: 400000,
+//   },
+// ];
 
 const HouseList = () => {
   // [prevState, newState]
-  const [houseList, setHouseList] = useState(housesArray);
+  const [houseList, setHouseList] = useState([]);
+
+  // Rules of hooks -> https://react.dev/reference/rules/rules-of-hooks
+  useEffect(() => {
+    const fetchHouses = async () => {
+      const response = await fetch("https://localhost:4000/houses");
+      const houses = await response.json();
+      setHouseList(houses);
+    };
+    fetchHouses();
+  });
+
   const handlePriceChange = (id: number, value: number) => {
     setHouseList((prevHouseList: any[]) =>
       prevHouseList.map((house) => {

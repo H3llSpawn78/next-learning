@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "React-Learning", "React-Learning", "{7C923166-BE59-A6D0-5CBD-34B46F0E6573}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HousesApi", "React-Learning\HousesApi\HousesApi.csproj", "{AE697BD4-6C16-48C3-80AA-A0263CC7347C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AE697BD4-6C16-48C3-80AA-A0263CC7347C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE697BD4-6C16-48C3-80AA-A0263CC7347C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE697BD4-6C16-48C3-80AA-A0263CC7347C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE697BD4-6C16-48C3-80AA-A0263CC7347C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AE697BD4-6C16-48C3-80AA-A0263CC7347C} = {7C923166-BE59-A6D0-5CBD-34B46F0E6573}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8A0F74C4-0161-4303-A38B-0DAED2540526}
+	EndGlobalSection
+EndGlobal

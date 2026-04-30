@@ -1,5 +1,6 @@
 import { FormInput } from "./FormInput/FormInput";
 import { formatCurrency } from "../utils/formatCurrency";
+import React from "react";
 
 type HouseRowProps = {
   house: {
@@ -47,5 +48,6 @@ const HouseRow = ({
     </tr>
   );
 };
-
+const HouseRowMem = React.memo(HouseRow);
 export default HouseRow;
+// export { HouseRowMem };
