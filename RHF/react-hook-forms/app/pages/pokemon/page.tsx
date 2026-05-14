@@ -24,7 +24,7 @@ export default function Pokemon() {
   return (
     <>
       <Header headingText="Pokemon" />
-      <div className="container mx-auto max-w-md p-4">
+      <div className="container mx-auto max-w-xl p-4">
         <h1>Pokemon page</h1>
         <PokemonList pokemonListItems={pokemon} />
       </div>

@@ -33,7 +33,7 @@ export default function GitHubRepo() {
   return (
     <>
       <Header headingText="GitHub Repos" />
-      <div className="container mx-auto max-w-md p-5">
+      <div className="container mx-auto max-w-xl p-5">
         <form onSubmit={onSubmit}>
           <input
             value={username}

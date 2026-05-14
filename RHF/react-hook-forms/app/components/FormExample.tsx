@@ -10,7 +10,9 @@ enum GenderEnum {
 
 interface IFormInput {
   firstName: string;
+  lastName: string;
   gender: GenderEnum;
+  submit: string;
 }
 
 export default function FormExample() {
@@ -18,6 +20,7 @@ export default function FormExample() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -32,9 +35,10 @@ export default function FormExample() {
     renderCount.current++;
   }, []);
 
+  console.log(watch());
   console.log(errors);
   return (
-    <div className="container mx-auto max-w-md p-4">
+    <div className="container mx-auto max-w-xl p-4">
       <form
         className="flex flex-col"
         onSubmit={handleSubmit((data) => {
@@ -66,7 +70,9 @@ export default function FormExample() {
         <label className="mb-2">Gender Selection</label>
         <select
           className="rounded-sm border border-gray-300 border-width: 2px bg-gray-300 text-black p-2 mb-5"
-          {...register("gender")}
+          {...register("gender", {
+            required: "This is required",
+          })}
           onChange={(e) => console.log(e.target.value)}
         >
           <option value="male">male</option>
@@ -76,7 +82,6 @@ export default function FormExample() {
         <input
           type="submit"
           className="rounded-sm border-2 border-gray-300 bg-gray-500 text-white p-2 mb-5 hover:bg-gray-300 hover:text-black transition-all duration-300 ease-in-out"
-          {...register("submit")}
         />
       </form>
 
