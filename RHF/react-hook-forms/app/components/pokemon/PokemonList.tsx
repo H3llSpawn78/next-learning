@@ -1,13 +1,20 @@
 import React from "react";
 type pokemonListProps = {
-  pokemonListItems: string[];
+  pokemonListItems: {
+    name: string;
+    url: string;
+  }[];
 };
 export default function PokemonList({ pokemonListItems }: pokemonListProps) {
   return (
-    <div>
-      {pokemonListItems.map((pokemon: string, index: number) => (
-        <li key={index}>{pokemon}</li>
+    <ul>
+      {pokemonListItems.map((pokemon, index) => (
+        <li key={index}>
+          {pokemon.name}
+          <br />
+          {/* {pokemon.url} */}
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }

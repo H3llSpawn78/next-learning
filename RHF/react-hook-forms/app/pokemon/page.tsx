@@ -7,15 +7,17 @@ import axios from "axios";
 type pokemonProps = {
   pokemonListItems: string[];
   name: string;
+  url: string;
 };
 
 export default function Pokemon() {
-  const [pokemon, setPokemon] = useState([]);
+  const [pokemon, setPokemon] = useState<pokemonProps[]>([]);
 
   useEffect(() => {
     axios.get("https://pokeapi.co/api/v2/pokemon").then((res) => {
       console.log(res.data.results);
-      setPokemon(res.data.results.map((p: pokemonProps) => p.name));
+      //setPokemon(res.data.results.map((p: pokemonProps) => p.name));
+      setPokemon(res.data.results);
     });
   }, []);
 
