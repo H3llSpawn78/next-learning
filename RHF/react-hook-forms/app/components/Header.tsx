@@ -107,7 +107,7 @@ export default function Header({ logo, headingText }: headerProps) {
         </div>
         <PopoverGroup className="hidden lg:flex lg:gap-x-12">
           <a
-            href="/pages/zodFormMui"
+            href="/zodFormMui"
             className="text-sm/6 font-semibold text-gray-500"
           >
             RHF, Zod & Mui
@@ -115,16 +115,10 @@ export default function Header({ logo, headingText }: headerProps) {
           <a href="/" className="text-sm/6 font-semibold text-gray-500">
             Form example
           </a>
-          <a
-            href="/pages/pokemon"
-            className="text-sm/6 font-semibold text-gray-500"
-          >
+          <a href="/pokemon" className="text-sm/6 font-semibold text-gray-500">
             Pokemon
           </a>{" "}
-          <a
-            href="/pages/repos"
-            className="text-sm/6 font-semibold text-gray-500"
-          >
+          <a href="/repos" className="text-sm/6 font-semibold text-gray-500">
             Repos
           </a>
           <Popover className="relative">
