@@ -1,5 +1,6 @@
 "use client";
-
+// NOT BEING USED ANYMORE, AS I HAVE AMENDED TO USE THE MODERN APP ROUTER/MUI APPROACH:
+// https://mui.com/material-ui/integrations/nextjs/
 /**
  * This file solves the MUI + Next.js App Router hydration issue.
  *
@@ -7,7 +8,7 @@
  * - MUI uses Emotion for styling
  * - Server renders styles as <style> tags
  * - Client generates styles differently
- * → This causes hydration mismatch
+ * This causes hydration mismatch
  *
  * Solution:
  * - Create a shared Emotion cache
@@ -35,8 +36,8 @@ export default function ThemeRegistry({
    * We use useState to ensure this only runs once per request/render
    *
    * It returns:
-   * - cache → Emotion cache instance
-   * - flush → function to get & reset inserted styles
+   * - cache Emotion cache instance
+   * - flush function to get & reset inserted styles
    */
   const [{ cache, flush }] = React.useState(() => {
     /**
@@ -143,8 +144,8 @@ export default function ThemeRegistry({
 
   /**
    * Wrap the app with:
-   * - CacheProvider → gives Emotion cache to all components
-   * - ThemeProvider → provides MUI theme
+   * - CacheProvider gives Emotion cache to all components
+   * - ThemeProvider provides MUI theme
    */
   return (
     <CacheProvider value={cache}>
