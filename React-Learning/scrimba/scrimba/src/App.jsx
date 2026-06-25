@@ -4,19 +4,18 @@ import viteLogo from "./assets/vite.svg";
 import heroImg from "./assets/hero.png";
 import "./App.css";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 function App() {
+  console.log(<h1>Testing</h1>); // jsx compiles to React.createElement()... and outputs an object
   return (
     <>
       <Header
-        logo={reactLogo}
+        headerLogo={reactLogo}
         headerText="This header test is being passed in as a prop"
-      >
-        {/* <div>
-          <img src={reactLogo} alt="React Logo" />
-          <h1>This a header with child items being passed in as props</h1>
-        </div> */}
-      </Header>
+      />
+
+      <Footer copyrightText="This footer test is being passed in as a prop" />
     </>
   );
 }
