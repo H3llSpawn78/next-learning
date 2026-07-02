@@ -271,3 +271,9 @@
   font-size: 0.8rem;
   font-weight: 700;
 }
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
