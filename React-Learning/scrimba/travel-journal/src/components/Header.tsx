@@ -1,4 +1,4 @@
-export default function Header(props) {
+export default function Header(props: any) {
   return (
     <header className="header">
       <div className="header__heading-wrapper">
