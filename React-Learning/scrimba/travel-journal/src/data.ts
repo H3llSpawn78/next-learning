@@ -60,6 +60,18 @@ const data: EntryData[] = [
     dates: "01 Oct, 2021 - 18 Nov, 2021",
     text: "The Geiranger Fjord is a fjord in Norway.",
   },
+  {
+    id: 5,
+    img: {
+      src: "https://scrimba.com/links/travel-journal-norway-image-url",
+      alt: "Geirangerfjord",
+    },
+    title: "Geirangerfjord",
+    country: "Norway",
+    googleMapsLink: "https://maps.app.goo.gl/fhkJuBhmFDv47tiB7",
+    dates: "01 Oct, 2021 - 18 Nov, 2021",
+    text: "The Geiranger Fjord is a fjord in Norway.",
+  },
 ];
 
 export default data;
