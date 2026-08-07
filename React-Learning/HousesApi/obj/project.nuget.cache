@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "pETFreqNOO4=",
+  "dgSpecHash": "mkimVvIA5Ww=",
   "success": true,
   "projectFilePath": "C:\\Users\\richard.mery\\Documents\\Learning\\React\\next-learning\\React-Learning\\HousesApi\\HousesApi.csproj",
   "expectedPackageFiles": [
@@ -20,6 +20,18 @@
       "warningLevel": 1,
       "filePath": "C:\\Users\\richard.mery\\Documents\\Learning\\React\\next-learning\\React-Learning\\HousesApi\\HousesApi.csproj",
       "targetGraphs": []
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'Microsoft.OpenApi' 2.4.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-v5pm-xwqc-g5wc",
+      "projectPath": "C:\\Users\\richard.mery\\Documents\\Learning\\React\\next-learning\\React-Learning\\HousesApi\\HousesApi.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\richard.mery\\Documents\\Learning\\React\\next-learning\\React-Learning\\HousesApi\\HousesApi.csproj",
+      "libraryId": "Microsoft.OpenApi",
+      "targetGraphs": [
+        "net10.0"
+      ]
     }
   ]
 }

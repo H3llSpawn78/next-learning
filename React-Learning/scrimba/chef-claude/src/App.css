@@ -167,7 +167,7 @@
 
   &::before,
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     top: -4.5px;
     border: 5px solid transparent;
@@ -181,4 +181,80 @@
     right: 0;
     border-right-color: var(--border);
   }
+}
+
+#root {
+  padding: 0 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #282a35;
+  border-radius: 0 0 10px 10px;
+  margin: 50px auto 20px;
+  width: 100%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+}
+
+.header h1 {
+  font-size: 35px;
+  filter: drop-shadow(2px 2px 3px black);
+}
+
+.header img {
+  width: 95px;
+  filter: drop-shadow(2px 2px 3px black);
+}
+
+.form-wrapper {
+  margin-top: 100px;
+  flex-direction: column;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.form-wrapper ul {
+  text-align: left;
+  padding-left: 20px;
+}
+
+.form-wrapper h2 {
+  color: var(--text-h);
+}
+
+.add-ingredient-form {
+  margin-top: 20px;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+.add-ingredient-form button {
+  margin-left: 20px;
+  padding: 10px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.add-ingredient-form button > span {
+  font-size: 20px;
+  margin-right: 10px;
+}
+.add-ingredient-form input {
+  padding: 13px;
+  flex-grow: 1;
+  max-width: 400px;
+  display: flex;
+}
+
+body {
+  background:
+    linear-gradient(rgb(40 42 53/90%), rgb(40 42 53 / 100%)),
+    url(/src/assets/red-dwarf-map.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+  min-height: 100vh;
 }
