@@ -13,11 +13,13 @@ export const typography = {
 	h2: {
 		fontWeight: 500,
 		fontSize: "2rem",
+		color: palette.primary.main,
 		fontFamily: fonts.heading,
 	},
 	h3: {
 		fontWeight: 500,
 		fontSize: "1.7rem",
+		color: palette.primary.main,
 		fontFamily: fonts.body,
 	},
 	h4: {

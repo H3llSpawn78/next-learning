@@ -4,11 +4,11 @@
 import { MotionBox } from "./MotionBox";
 import { fadeUp } from "../variants";
 
-interface FadeInProps {
+interface FadeInBoxProps {
 	children: React.ReactNode;
 }
 
-export function FadeIn({ children }: FadeInProps) {
+export function FadeInBox({ children }: FadeInBoxProps) {
 	return (
 		<MotionBox
 			variants={fadeUp}

@@ -16,7 +16,6 @@ export const theme = createTheme({
 	// we start needing obscure variants based on the design -
 	// design should use multiples of a desired integer value for consistency
 	spacing: 8,
-	// Usage: theme.spacing(2) = 16px etc etc
 
 	// Custom breakpoints
 	breakpoints: {
