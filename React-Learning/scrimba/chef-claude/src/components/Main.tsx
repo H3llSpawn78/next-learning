@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+import KeywordsList from "./KeywordsList";
+import ScriptSection from "./ScriptSection";
+import { getScriptFromClaude } from "./ai";
 
 export default function Main() {
   //---------
   // useState
   //---------
   /**
+   * 
      * Note: if you ever need the old value of state
      * to help you determine the new value of state,
      * you should pass a callback function to your
@@ -20,7 +24,7 @@ export default function Main() {
      const [isGoingOut, setIsGoingOut] = React.useState(false)
     
     function changeMind() {
-        setIsGoingOut(prev => !prev)
+        setIsGoingOut(isGoingOut => !isGoingOut)
     }
     <button>{isGoingOut ? "Yes" : "No"}</button>
 
@@ -66,21 +70,36 @@ export default function Main() {
         isFavorite: !prevContact.isFavorite
       }))
     }
-
-
-
-
-
     */
+
+  const [script, setScript] = useState<string | null>(null);
+
+  const scriptSectionRef = useRef<HTMLElement>(null);
+  const [scriptShown, setScriptShown] = useState(false);
+  async function handleShowScriptClick() {
+    const generatedScript = await getScriptFromClaude(keywords);
+    setScript(generatedScript);
+    setScriptShown(true);
+    setTimeout(() => {
+      scriptSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 0);
+  }
+
+  // useEffect(() => {
+  //   if (scriptShown) {
+  //     scriptSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  //   }
+  // }, [scriptShown]);
 
   const [keywords, setKeywords] = useState<string[]>([]);
 
-  const keywordsListItems = keywords.map((keyword) => (
-    <li key={keyword}>{keyword}</li>
-  ));
-
   function handleClick() {
     console.log("Clicked!");
+  }
+
+  function handleFormClear() {
+    setKeywords([]);
+    setScriptShown(false);
   }
 
   // function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
@@ -105,6 +124,18 @@ export default function Main() {
   // This function is the same as the above, however when using the 'action'
   // form attribute we already have access to the formData, so we can achieve the same with less code
 
+  // Example of a function to return various lines of text:
+  //  const [messages, setMessages] = React.useState(["a"])
+  //  function determineText() {
+  //         if (messages.length === 0) {
+  //             return "You're all caught up!"
+  //         } else if (messages.length === 1) {
+  //             return "You have 1 unread message"
+  //         } else {
+  //             return `You have ${messages.length} unread messages`
+  //         }
+  //     }
+
   function formSubmit(formData: FormData) {
     // construct an object with all form data - then can retrive using dot notation e.g. allData.keyword.
     const allData = Object.fromEntries(formData.entries());
@@ -116,7 +147,7 @@ export default function Main() {
       setKeywords((prevKeywords) => [...prevKeywords, keyword]);
     }
   }
-
+  console.log(import.meta.env.VITE_ANTHROPIC_API_KEY);
   return (
     <main>
       <div className="form-wrapper">
@@ -135,9 +166,19 @@ export default function Main() {
           <button onClick={handleClick}>
             <span>&#43;</span> Add keyword
           </button>
-          <button onClick={() => setKeywords([])}>Clear</button>
+          <button type="button" onClick={handleFormClear}>
+            Clear
+          </button>
         </form>
-        <ul>{keywordsListItems}</ul>
+        {keywords.length > 0 && (
+          <KeywordsList
+            handleShowScriptClick={handleShowScriptClick}
+            keywords={keywords}
+          />
+        )}
+        {scriptShown && (
+          <ScriptSection ref={scriptSectionRef} script={script} />
+        )}
       </div>
     </main>
   );
