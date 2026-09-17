@@ -82,9 +82,12 @@ export default function Main() {
     setLoading(true);
 
     try {
-      const generatedScript = await getScriptFromClaude(keywords);
-      setScript(generatedScript);
+      //const generatedScript = await getScriptFromClaude(keywords);
+      setScript("");
       setScriptShown(true);
+      await getScriptFromClaude(keywords, (chunk) => {
+        setScript((prevScript) => (prevScript || "") + chunk);
+      });
     } finally {
       setLoading(false);
     }

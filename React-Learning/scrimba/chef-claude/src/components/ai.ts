@@ -40,7 +40,6 @@ Character dialogue continues...
 
 Rules:
 Rules:
-- Return valid HTML only.
 - Use <h1>, <h2>, <h3>.
 - Do not wrap the response in \`\`\`html code fences.
 - Use the supplied keywords naturally.
@@ -72,6 +71,7 @@ const anthropic = new Anthropic({
 
 export async function getScriptFromClaude(
   keywordsArr: string[],
+  onChunk: (chunk: string) => void,
 ): Promise<string> {
   const keywordsString = keywordsArr.join(", ");
   try {
@@ -80,22 +80,38 @@ export async function getScriptFromClaude(
   } catch (err) {
     console.error(err);
   }
-  const msg = await anthropic.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 1024,
-    system: SYSTEM_PROMPT,
-    messages: [
-      {
-        role: "user",
-        content: `I have ${keywordsString}. Please give me a script for a Red Dwarf episode that uses these keywords in a comedic way.`,
-      },
-    ],
-  });
+  const stream = await anthropic.messages
+    .stream({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 1024,
+      system: SYSTEM_PROMPT,
+      messages: [
+        {
+          role: "user",
+          content: `I have ${keywordsString}. Please give me a script for a Red Dwarf episode that uses these keywords in a comedic way.`,
+        },
+      ],
+    })
+    .on("text", (text) => {
+      console.log("Received data chunk:", text);
+      //onChunk(text);
+    });
 
-  const firstBlock = msg.content[0];
-
-  if (firstBlock.type === "text") {
-    return firstBlock.text;
+  let fullText = "";
+  for await (const event of stream) {
+    if (event.type === "content_block_delta") {
+      if (event.delta.type === "thinking_delta") {
+        process.stdout.write(event.delta.thinking);
+      } else if (event.delta.type === "text_delta") {
+        onChunk(event.delta.text);
+      }
+    }
   }
+  return fullText;
+  // const firstBlock = stream.content[0];
+
+  // if (firstBlock.type === "text") {
+  //   return firstBlock.text;
+  // }
   return "";
 }
