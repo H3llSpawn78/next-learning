@@ -41,8 +41,7 @@ Character dialogue continues...
 Rules:
 Rules:
 - Return valid HTML only.
-- Use <h1>, <h2>, <p>, and <strong>.
-- Wrap dialogue in <p> tags.
+- Use <h1>, <h2>, <h3>.
 - Do not wrap the response in \`\`\`html code fences.
 - Use the supplied keywords naturally.
 - Include plenty of character dialogue.

@@ -76,10 +76,19 @@ export default function Main() {
 
   const scriptSectionRef = useRef<HTMLElement>(null);
   const [scriptShown, setScriptShown] = useState(false);
-  async function handleShowScriptClick() {
-    const generatedScript = await getScriptFromClaude(keywords);
-    setScript(generatedScript);
-    setScriptShown(true);
+  const [loading, setLoading] = useState(false);
+
+  async function getScript() {
+    setLoading(true);
+
+    try {
+      const generatedScript = await getScriptFromClaude(keywords);
+      setScript(generatedScript);
+      setScriptShown(true);
+    } finally {
+      setLoading(false);
+    }
+
     setTimeout(() => {
       scriptSectionRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 0);
@@ -172,8 +181,9 @@ export default function Main() {
         </form>
         {keywords.length > 0 && (
           <KeywordsList
-            handleShowScriptClick={handleShowScriptClick}
+            getScript={getScript}
             keywords={keywords}
+            loading={loading}
           />
         )}
         {scriptShown && (

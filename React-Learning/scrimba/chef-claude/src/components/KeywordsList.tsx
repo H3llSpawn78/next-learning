@@ -1,9 +1,11 @@
 export default function KeywordsList({
   keywords,
-  handleShowScriptClick,
+  getScript,
+  loading,
 }: {
   keywords: string[];
-  handleShowScriptClick: () => void;
+  getScript: () => void;
+  loading: boolean;
 }) {
   const keywordsListItems = keywords.map((keyword) => (
     <li key={keyword}>{keyword}</li>
@@ -20,8 +22,8 @@ export default function KeywordsList({
             <h3>Ready for a script?</h3>
             <p>Generate a script from your list of keywords.</p>
           </div>
-          <button type="button" onClick={handleShowScriptClick}>
-            Create a script
+          <button type="button" onClick={getScript} disabled={loading}>
+            {loading ? "Generating..." : "Create a script"}
           </button>
         </div>
       )}
