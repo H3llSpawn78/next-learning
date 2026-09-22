@@ -39,7 +39,6 @@ Character dialogue continues...
 [Description]
 
 Rules:
-Rules:
 - Use <h1>, <h2>, <h3>.
 - Do not wrap the response in \`\`\`html code fences.
 - Use the supplied keywords naturally.
