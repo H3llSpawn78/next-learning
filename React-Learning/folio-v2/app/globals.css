@@ -1,0 +1,1085 @@
+/* ============================================================================
+ * app/globals.css
+ * ----------------------------------------------------------------------------
+ * Global sci-fi theme: near-black surfaces, lime/emerald neon accents,
+ * creative gradients, glowing buttons, glass panels and HUD details.
+ *
+ * Organisation:
+ *   1. Design tokens (CSS custom properties)
+ *   2. Base / reset
+ *   3. Background layers (WebGL canvas, gradient backdrop, scanlines)
+ *   4. Utilities (gradient text, panels, tags)
+ *   5. Glow buttons
+ *   6. Layout chrome (nav, footer, HUD)
+ *   7. Sections (hero, about, skills, projects, timeline, contact, detail)
+ *   8. Animations & reduced-motion
+ *   9. Responsive tweaks
+ * ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+ * 1. Design tokens
+ * ------------------------------------------------------------------------- */
+:root {
+  /* Surfaces - layered blacks with a faint green cast. */
+  --bg: #030503;
+  --bg-elev: rgba(10, 18, 10, 0.55);
+  --bg-elev-solid: #0a120a;
+
+  /* Neon palette. */
+  --lime: #b6ff2e;
+  --lime-bright: #dcff7a;
+  --green: #39ff14;
+  --emerald: #00ff9d;
+  --teal: #00e0c6;
+
+  /* Text. */
+  --text: #e8ffe0;
+  --text-muted: #8fa98a;
+
+  /* Lines & glows. */
+  --border: rgba(182, 255, 46, 0.16);
+  --border-strong: rgba(182, 255, 46, 0.45);
+  --glow-sm: 0 0 8px rgba(182, 255, 46, 0.55);
+  --glow-md: 0 0 12px rgba(182, 255, 46, 0.6), 0 0 32px rgba(57, 255, 20, 0.35);
+  --glow-lg:
+    0 0 16px rgba(182, 255, 46, 0.8), 0 0 48px rgba(57, 255, 20, 0.5),
+    0 0 96px rgba(0, 255, 157, 0.25);
+
+  /* Signature gradients. They start and end on the same colour so they tile
+   * seamlessly when panned by the gradient-pan animation (no visible seam). */
+  --grad-neon: linear-gradient(
+    100deg,
+    var(--lime-bright) 0%,
+    var(--lime) 20%,
+    var(--green) 38%,
+    var(--emerald) 50%,
+    var(--green) 62%,
+    var(--lime) 80%,
+    var(--lime-bright) 100%
+  );
+  --grad-text: linear-gradient(
+    90deg,
+    #f3ffe6 0%,
+    var(--lime) 25%,
+    var(--emerald) 50%,
+    var(--lime) 75%,
+    #f3ffe6 100%
+  );
+
+  /* Typography (variables injected by next/font in app/layout.tsx). */
+  --font-display-stack: var(--font-display), "Orbitron", system-ui, sans-serif;
+  --font-body-stack: var(--font-body), "Inter", system-ui, sans-serif;
+  --font-mono-stack:
+    var(--font-mono), "JetBrains Mono", ui-monospace, monospace;
+
+  /* Layout. */
+  --max-width: 1180px;
+  --radius: 14px;
+  --nav-height: 72px;
+}
+
+/* Registered property so the conic-gradient border angle can be animated. */
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* ---------------------------------------------------------------------------
+ * 2. Base / reset
+ * ------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* Smooth anchor scrolling - also makes the ship's explode feel cinematic. */
+  scroll-behavior: smooth;
+  /* Offset anchor targets so headings aren't hidden under the fixed nav. */
+  scroll-padding-top: var(--nav-height);
+  background: var(--bg);
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-body-stack);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display-stack);
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+/* Lime text selection to stay on-theme. */
+::selection {
+  background: var(--lime);
+  color: #041004;
+}
+
+/* Visible, glowing keyboard focus for accessibility. */
+:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 3px;
+  box-shadow: var(--glow-sm);
+}
+
+/* Thin neon scrollbar (WebKit + Firefox). */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--lime), var(--emerald));
+  border-radius: 8px;
+}
+html {
+  scrollbar-color: var(--lime) var(--bg);
+  scrollbar-width: thin;
+}
+
+/* ---------------------------------------------------------------------------
+ * 3. Background layers (stacking: canvas -> backdrop -> scanlines -> content)
+ * ------------------------------------------------------------------------- */
+
+/* The fixed three.js canvas container (components/three/ParticleShip.tsx). */
+.ship-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none; /* never block clicks on content */
+}
+.ship-canvas canvas {
+  display: block;
+}
+
+/* Creative gradient atmosphere: lime nebula top-left, emerald glow
+ * bottom-right, and a dark vignette pulling focus to the centre. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      60% 50% at 10% 0%,
+      rgba(182, 255, 46, 0.12),
+      transparent 70%
+    ),
+    radial-gradient(
+      50% 45% at 100% 100%,
+      rgba(0, 255, 157, 0.1),
+      transparent 70%
+    ),
+    radial-gradient(
+      120% 90% at 50% 50%,
+      transparent 55%,
+      rgba(0, 0, 0, 0.75) 100%
+    );
+}
+
+/* Subtle CRT scanlines + faint grid for a holographic-display feel. */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.35;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.025) 0 1px,
+      transparent 1px 3px
+    ),
+    linear-gradient(rgba(182, 255, 46, 0.03) 1px, transparent 1px) 0 0 / 80px
+      80px,
+    linear-gradient(90deg, rgba(182, 255, 46, 0.03) 1px, transparent 1px) 0 0 /
+      80px 80px;
+}
+
+/* All real content sits above the decorative layers. */
+.main,
+.nav,
+.footer,
+.hud {
+  position: relative;
+  z-index: 10;
+}
+
+.main {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Fixed chrome must sit above scrolling content. */
+.nav,
+.hud {
+  z-index: 50;
+}
+
+/* ---------------------------------------------------------------------------
+ * 4. Utilities
+ * ------------------------------------------------------------------------- */
+
+/* Gradient-filled text with a soft glow (drop-shadow works on clipped text). */
+.gradient-text {
+  background: var(--grad-text);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 18px rgba(182, 255, 46, 0.25));
+  animation: gradient-pan 8s linear infinite;
+}
+
+/* Frosted glass panel with a hairline lime border and inner gradient sheen. */
+.panel {
+  position: relative;
+  background:
+    linear-gradient(160deg, rgba(182, 255, 46, 0.06), transparent 40%),
+    var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  backdrop-filter: blur(10px) saturate(130%);
+  -webkit-backdrop-filter: blur(10px) saturate(130%);
+}
+
+/* Targeting-reticle corner brackets drawn with two gradient backgrounds. */
+.panel--brackets::before,
+.panel--brackets::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--lime);
+  filter: drop-shadow(0 0 6px var(--lime));
+  pointer-events: none;
+}
+.panel--brackets::before {
+  top: -1px;
+  left: -1px;
+  border-right: 0;
+  border-bottom: 0;
+  border-top-left-radius: var(--radius);
+}
+.panel--brackets::after {
+  bottom: -1px;
+  right: -1px;
+  border-left: 0;
+  border-top: 0;
+  border-bottom-right-radius: var(--radius);
+}
+
+/* Pill tags for tech stacks / skills. */
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+}
+.tag {
+  font-family: var(--font-mono-stack);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: var(--lime-bright);
+  background: rgba(182, 255, 46, 0.07);
+  border: 1px solid var(--border);
+}
+
+/* Blinking status dot. */
+.pulse-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--lime);
+  box-shadow: var(--glow-md);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+/* ---------------------------------------------------------------------------
+ * 5. Glow buttons (components/ui/GlowButton.tsx)
+ * ------------------------------------------------------------------------- */
+.glow-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-family: var(--font-display-stack);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  overflow: hidden; /* clips the sweeping sheen */
+  isolation: isolate;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.35s ease,
+    color 0.25s ease;
+}
+
+/* Sheen: a diagonal light streak that sweeps across on hover. */
+.glow-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.7s ease;
+}
+.glow-btn:hover::after {
+  transform: translateX(120%);
+}
+
+.glow-btn:hover {
+  transform: translateY(-2px);
+}
+.glow-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Primary: filled neon gradient with a strong multi-layer glow. */
+.glow-btn--primary {
+  color: #061206;
+  background: var(--grad-neon);
+  background-size: 200% auto;
+  box-shadow: var(--glow-md);
+  animation: gradient-pan 6s linear infinite;
+}
+.glow-btn--primary:hover {
+  box-shadow: var(--glow-lg);
+}
+
+/* Ghost: transparent fill with a gradient border (via mask) that glows on hover. */
+.glow-btn--ghost {
+  color: var(--lime-bright);
+  background: rgba(182, 255, 46, 0.04);
+  box-shadow:
+    inset 0 0 0 1px var(--border-strong),
+    0 0 0 rgba(182, 255, 46, 0);
+}
+.glow-btn--ghost:hover {
+  color: #f3ffe6;
+  background: rgba(182, 255, 46, 0.1);
+  box-shadow:
+    inset 0 0 0 1px var(--lime),
+    var(--glow-md);
+  text-shadow: 0 0 8px var(--lime);
+}
+
+.glow-btn__label {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------------------------------------------------------------------------
+ * 6. Layout chrome
+ * ------------------------------------------------------------------------- */
+
+/* --- Nav ------------------------------------------------------------------ */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(16px, 4vw, 40px);
+  background: linear-gradient(
+    to bottom,
+    rgba(3, 5, 3, 0.9),
+    rgba(3, 5, 3, 0.4)
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+/* Thin animated gradient line along the bottom edge of the nav. */
+.nav::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--grad-neon);
+  background-size: 200% auto;
+  opacity: 0.6;
+  animation: gradient-pan 6s linear infinite;
+}
+
+.nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+/* Clipped hexagon badge with glowing initials. */
+.nav__logo {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  font-family: var(--font-display-stack);
+  font-weight: 900;
+  font-size: 0.85rem;
+  color: #061206;
+  background: var(--grad-neon);
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0 50%);
+  filter: drop-shadow(0 0 10px rgba(182, 255, 46, 0.7));
+}
+.nav__name {
+  font-family: var(--font-display-stack);
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.nav__links {
+  display: flex;
+  gap: clamp(12px, 2.5vw, 32px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.nav__link {
+  position: relative;
+  font-family: var(--font-mono-stack);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  transition:
+    color 0.2s,
+    text-shadow 0.2s;
+}
+/* Underline that grows from the centre on hover. */
+.nav__link::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  right: 50%;
+  bottom: -6px;
+  height: 2px;
+  background: var(--lime);
+  box-shadow: var(--glow-sm);
+  transition:
+    left 0.25s,
+    right 0.25s;
+}
+.nav__link:hover {
+  color: var(--lime-bright);
+  text-shadow: 0 0 10px rgba(182, 255, 46, 0.7);
+}
+.nav__link:hover::after {
+  left: 0;
+  right: 0;
+}
+
+/* --- Footer --------------------------------------------------------------- */
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 40px 24px 120px; /* bottom padding leaves room for the HUD */
+  border-top: 1px solid var(--border);
+  font-family: var(--font-mono-stack);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+}
+.footer__socials {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.footer__link:hover {
+  color: var(--lime);
+  text-shadow: var(--glow-sm);
+}
+
+/* --- HUD (components/hud/ScrollHud.tsx) ----------------------------------- */
+.hud {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  width: 220px;
+  padding: 12px 14px;
+  font-family: var(--font-mono-stack);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  color: var(--lime-bright);
+  background: rgba(3, 8, 3, 0.7);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+.hud__row {
+  display: flex;
+  justify-content: space-between;
+}
+.hud__row--dim {
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+.hud__value {
+  text-shadow: var(--glow-sm);
+}
+.hud__meter {
+  height: 4px;
+  margin-top: 8px;
+  background: rgba(182, 255, 46, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+/* Fill width comes from --fill (set inline by the component). */
+.hud__fill {
+  display: block;
+  height: 100%;
+  width: var(--fill, 100%);
+  background: var(--grad-neon);
+  box-shadow: var(--glow-sm);
+  transition: width 0.15s linear;
+}
+.hud__alert {
+  color: #ff5e5e;
+  text-shadow: 0 0 8px rgba(255, 60, 60, 0.8);
+  animation: pulse 0.8s ease-in-out infinite;
+}
+
+/* ---------------------------------------------------------------------------
+ * 7. Sections
+ * ------------------------------------------------------------------------- */
+
+/* Generous vertical spacing gives the scroll-driven explosion room to play out. */
+.section {
+  padding: clamp(96px, 16vh, 180px) 0;
+}
+
+.section-heading {
+  margin-bottom: 40px;
+}
+.section-heading__label {
+  font-family: var(--font-mono-stack);
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+.section-heading__index {
+  color: var(--lime);
+  text-shadow: var(--glow-sm);
+}
+.section-heading__title {
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 900;
+}
+
+/* --- Hero ----------------------------------------------------------------- */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+  padding-top: var(--nav-height);
+  max-width: 640px; /* keep text left so the ship is visible on the right */
+}
+.hero__status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono-stack);
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  color: var(--lime-bright);
+}
+.hero__title {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.hero__name {
+  font-size: clamp(2.8rem, 8vw, 5.6rem);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.hero__role {
+  font-size: clamp(1rem, 2.4vw, 1.4rem);
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.hero__tagline {
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  color: var(--text);
+  max-width: 520px;
+}
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 12px;
+}
+/* Scroll cue with a falling light "drip" line. */
+.hero__scroll {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 48px;
+  font-family: var(--font-mono-stack);
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  color: var(--text-muted);
+}
+.hero__scroll-line {
+  position: relative;
+  width: 80px;
+  height: 1px;
+  background: var(--border);
+  overflow: hidden;
+}
+.hero__scroll-line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 30%;
+  background: var(--lime);
+  box-shadow: var(--glow-sm);
+  animation: scan 2s ease-in-out infinite;
+}
+
+/* --- About ---------------------------------------------------------------- */
+.about {
+  max-width: 760px;
+  display: grid;
+  gap: 18px;
+}
+.about__text {
+  font-size: 1.08rem;
+}
+/* First paragraph slightly larger, like a lead-in. */
+.about__text:first-child {
+  font-size: 1.25rem;
+  color: #f3ffe6;
+}
+
+/* --- Skills --------------------------------------------------------------- */
+.skills {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+.skill {
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s,
+    transform 0.3s;
+}
+.skill:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 30px rgba(182, 255, 46, 0.12);
+  transform: translateY(-4px);
+}
+.skill__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.skill__title {
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.skill__level {
+  font-family: var(--font-mono-stack);
+  color: var(--lime);
+  text-shadow: var(--glow-sm);
+}
+/* Segmented power meter: gradient fill masked into "cells". */
+.meter {
+  height: 8px;
+  margin-top: 16px;
+  background: rgba(182, 255, 46, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.meter__fill {
+  display: block;
+  height: 100%;
+  width: var(--level, 0%);
+  background: var(--grad-neon);
+  box-shadow: var(--glow-sm);
+  -webkit-mask: repeating-linear-gradient(
+    90deg,
+    #000 0 10px,
+    transparent 10px 12px
+  );
+  mask: repeating-linear-gradient(90deg, #000 0 10px, transparent 10px 12px);
+}
+
+/* --- Projects ------------------------------------------------------------- */
+.projects {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+/* Outer element = animated conic-gradient "border" (1px of padding shows it). */
+.project-card {
+  --angle: 0deg;
+  position: relative;
+  display: block;
+  padding: 1px;
+  border-radius: calc(var(--radius) + 2px);
+  background: conic-gradient(
+    from var(--angle),
+    rgba(182, 255, 46, 0.15),
+    var(--lime) 10%,
+    rgba(0, 255, 157, 0.15) 25%,
+    rgba(182, 255, 46, 0.15) 50%,
+    var(--emerald) 60%,
+    rgba(182, 255, 46, 0.15) 75%
+  );
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
+}
+.project-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 0 40px rgba(182, 255, 46, 0.22),
+    0 0 90px rgba(0, 255, 157, 0.12);
+  animation: spin-border 3s linear infinite;
+}
+.project-card--featured {
+  grid-column: span 2;
+}
+
+.project-card__inner {
+  height: 100%;
+  border-radius: var(--radius);
+  background: var(--bg-elev-solid);
+  overflow: hidden;
+}
+
+/* Generated thumbnail: per-card hue-shifted gradient mesh + grid lines. */
+.project-card__visual {
+  position: relative;
+  height: 180px;
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(rgba(182, 255, 46, 0.08) 1px, transparent 1px) 0 0 / 24px
+      24px,
+    linear-gradient(90deg, rgba(182, 255, 46, 0.08) 1px, transparent 1px) 0 0 /
+      24px 24px,
+    radial-gradient(
+      circle at 30% 30%,
+      hsl(calc(85deg + var(--hue, 0deg) * 0.15) 100% 55% / 0.45),
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 75% 70%,
+      hsl(calc(150deg + var(--hue, 0deg) * 0.1) 100% 50% / 0.35),
+      transparent 60%
+    ),
+    linear-gradient(135deg, #061006, #020402);
+  border-bottom: 1px solid var(--border);
+}
+.project-card--featured .project-card__visual {
+  height: 240px;
+}
+.project-card__visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.project-card__code {
+  font-family: var(--font-display-stack);
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--lime);
+  filter: drop-shadow(0 0 10px rgba(182, 255, 46, 0.6));
+  opacity: 0.8;
+}
+
+.project-card__body {
+  padding: 24px;
+}
+.project-card__meta {
+  font-family: var(--font-mono-stack);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.project-card__title {
+  font-size: 1.35rem;
+  margin: 8px 0 10px;
+  transition:
+    color 0.25s,
+    text-shadow 0.25s;
+}
+.project-card:hover .project-card__title {
+  color: var(--lime-bright);
+  text-shadow: 0 0 14px rgba(182, 255, 46, 0.5);
+}
+.project-card__summary {
+  color: var(--text-muted);
+}
+.project-card__cta {
+  display: inline-block;
+  margin-top: 20px;
+  font-family: var(--font-mono-stack);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--lime);
+}
+
+/* --- Experience timeline -------------------------------------------------- */
+.timeline {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 36px;
+}
+/* Vertical glowing rail - gradient fades out at both ends. */
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--lime) 15%,
+    var(--emerald) 85%,
+    transparent
+  );
+  box-shadow: var(--glow-sm);
+}
+.timeline__item {
+  position: relative;
+  margin-bottom: 28px;
+}
+.timeline__node {
+  position: absolute;
+  left: -34px;
+  top: 30px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--lime);
+  box-shadow: var(--glow-md);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+.timeline__period {
+  font-family: var(--font-mono-stack);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: var(--lime);
+}
+.timeline__role {
+  font-size: 1.2rem;
+  margin: 8px 0;
+}
+.timeline__company {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.timeline__summary {
+  color: var(--text-muted);
+}
+
+/* --- Contact -------------------------------------------------------------- */
+.contact {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.contact__panel {
+  display: grid;
+  justify-items: start;
+  gap: 24px;
+  max-width: 720px;
+  padding: 40px;
+}
+.contact__text {
+  font-size: 1.2rem;
+}
+.contact__hint {
+  font-family: var(--font-mono-stack);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* --- Project detail & 404 ------------------------------------------------- */
+.project-detail,
+.not-found {
+  min-height: 100vh;
+  padding-top: calc(var(--nav-height) + 80px);
+  display: grid;
+  align-content: start;
+  gap: 24px;
+}
+.project-detail__title {
+  font-size: clamp(2.4rem, 6vw, 4.4rem);
+  font-weight: 900;
+}
+.project-detail__role {
+  font-family: var(--font-mono-stack);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.project-detail__image img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.project-detail__body {
+  display: grid;
+  gap: 16px;
+  max-width: 780px;
+  font-size: 1.08rem;
+}
+
+/* ---------------------------------------------------------------------------
+ * 8. Animations
+ * ------------------------------------------------------------------------- */
+
+/* Slides gradients horizontally (used with background-size: 200%). */
+@keyframes gradient-pan {
+  to {
+    background-position: 200% center;
+  }
+}
+
+/* Rotates the conic-gradient border on project cards. */
+@keyframes spin-border {
+  to {
+    --angle: 360deg;
+  }
+}
+
+/* Breathing glow for status dots, timeline nodes and alerts. */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+}
+
+/* Light travelling along the hero scroll-cue line. */
+@keyframes scan {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(340%);
+  }
+}
+
+/* Respect users who prefer reduced motion: stop decorative CSS loops.
+ * (The three.js scene also reads this preference and calms its motion.) */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * 9. Responsive tweaks
+ * ------------------------------------------------------------------------- */
+@media (max-width: 860px) {
+  /* Hide text links on small screens - brand stays visible. Sections remain
+   * reachable by scrolling; add a burger menu here if you need one. */
+  .nav__links {
+    display: none;
+  }
+  /* Featured cards can't span 2 columns in a single-column grid. */
+  .project-card--featured {
+    grid-column: auto;
+  }
+  /* On mobile the ship floats above the hero text, so push text down. */
+  .hero {
+    justify-content: flex-end;
+    padding-bottom: 80px;
+  }
+  .hud {
+    width: 180px;
+    left: 12px;
+    bottom: 12px;
+  }
+}

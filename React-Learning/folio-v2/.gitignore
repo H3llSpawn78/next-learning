@@ -1,0 +1,22 @@
+# Dependencies installed by npm - never commit these.
+/node_modules
+
+# Next.js build output and cache.
+/.next/
+/out/
+
+# Production build artefacts.
+/build
+
+# Local environment files contain secrets (CMS tokens, webhook secret).
+.env*.local
+.env
+
+# TypeScript incremental build info and generated Next types.
+*.tsbuildinfo
+next-env.d.ts
+
+# OS / editor noise.
+.DS_Store
+Thumbs.db
+npm-debug.log*

@@ -1,0 +1,45 @@
+// TypeScript configuration for the Next.js App Router project.
+// tsconfig.json is parsed as JSONC, so comments are allowed here.
+{
+  "compilerOptions": {
+    // Compile target for type-checking only - Next.js (SWC) does the real transpilation.
+    "target": "ES2020",
+    // Libraries available to the type checker: browser DOM + modern JS.
+    "lib": ["dom", "dom.iterable", "esnext"],
+    // Allow plain .js files to be imported alongside .ts/.tsx.
+    "allowJs": true,
+    // Skip type-checking of declaration files in node_modules (faster builds).
+    "skipLibCheck": true,
+    // Full strict mode - catches null/undefined mistakes in the content layer early.
+    "strict": true,
+    // Next.js emits the build itself; tsc is only used for type-checking.
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    // "bundler" resolution matches how Next.js/Turbopack resolves imports.
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    // React automatic JSX runtime (required by Next.js 16) - no `import React` needed.
+    "jsx": "react-jsx",
+    "incremental": true,
+    // Next.js TypeScript plugin gives editor hints for App Router conventions.
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    // "@/..." alias points at the project root, e.g. import x from "@/lib/content".
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}
